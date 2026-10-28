@@ -1,0 +1,1337 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobSpark — Plateforme IA de recommandation d'emplois Data</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--navy:#0b1120;--navy2:#111827;--navy3:#1e293b;
+--emerald:#10b981;--emerald-d:#059669;--emerald-l:#d1fae5;--emerald-b:#a7f3d0;
+--amber:#f59e0b;--amber-l:#fef3c7;--amber-b:#fde68a;
+--coral:#ef4444;--coral-l:#fef2f2;--coral-b:#fecaca;
+--sky:#0ea5e9;--sky-l:#e0f2fe;--sky-b:#bae6fd;
+--violet:#8b5cf6;--violet-l:#f5f3ff;--violet-b:#ddd6fe;
+--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;
+--g400:#94a3b8;--g500:#64748b;--g600:#475569;--g700:#334155;--g800:#1e293b;--g900:#0f172a;
+--white:#fff;
+--ff:'Space Grotesk',sans-serif;--ff2:'DM Sans',sans-serif;
+--r:8px;--r-lg:12px;--r-xl:16px;--r-2xl:20px;
+--sh:0 1px 3px rgba(0,0,0,.06);--sh-md:0 4px 14px rgba(0,0,0,.08);--sh-lg:0 12px 32px rgba(0,0,0,.12);
+--tr:all .25s cubic-bezier(.4,0,.2,1)
+}
+html,body{height:100%;font-family:var(--ff2);font-size:14px;background:var(--g50);color:var(--g900);overflow:hidden}
+a{text-decoration:none;color:inherit}
+button{font-family:var(--ff2);cursor:pointer}
+input,select,textarea{font-family:var(--ff2);outline:none}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--g300);border-radius:10px}
+
+/* ═══ LANDING ═══ */
+#landing{position:fixed;inset:0;z-index:1000;background:var(--navy);display:flex;flex-direction:column;overflow-y:auto;transition:opacity .5s,transform .5s}
+#landing.hide{opacity:0;transform:scale(1.02);pointer-events:none}
+.land-hero{position:relative;min-height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.land-mesh{position:absolute;inset:0;overflow:hidden}
+.land-mesh .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.35;animation:orbFloat 12s ease-in-out infinite}
+.land-mesh .orb1{width:500px;height:500px;background:var(--emerald);top:-10%;left:-5%;animation-delay:0s}
+.land-mesh .orb2{width:400px;height:400px;background:var(--sky);bottom:-5%;right:-5%;animation-delay:-4s}
+.land-mesh .orb3{width:300px;height:300px;background:var(--amber);top:40%;left:50%;animation-delay:-8s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.1)}66%{transform:translate(-20px,30px) scale(.9)}}
+.land-nav{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:20px 48px}
+.land-logo{display:flex;align-items:center;gap:10px;font-family:var(--ff);font-size:20px;font-weight:700;color:white}
+.land-logo-icon{width:36px;height:36px;background:var(--emerald);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:white}
+.land-nav-btns{display:flex;gap:10px}
+.btn-ghost{padding:9px 20px;border:1px solid rgba(255,255,255,.2);border-radius:var(--r);background:transparent;color:white;font-size:13px;font-weight:500;transition:var(--tr)}
+.btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.35)}
+.btn-primary{padding:9px 22px;border:none;border-radius:var(--r);background:var(--emerald);color:white;font-size:13px;font-weight:600;transition:var(--tr)}
+.btn-primary:hover{background:var(--emerald-d);transform:translateY(-1px);box-shadow:0 4px 16px rgba(16,185,129,.35)}
+.land-center{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 24px 60px}
+.land-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);border-radius:30px;color:var(--emerald);font-size:12px;font-weight:600;margin-bottom:24px}
+.land-badge i{font-size:8px;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.land-h1{font-family:var(--ff);font-size:clamp(32px,5vw,56px);font-weight:700;color:white;line-height:1.1;letter-spacing:-.02em;margin-bottom:16px;max-width:700px}
+.land-h1 em{font-style:normal;background:linear-gradient(135deg,var(--emerald),var(--sky));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.land-sub{font-size:16px;color:var(--g400);max-width:520px;line-height:1.7;margin-bottom:36px}
+.land-search{display:flex;gap:0;background:var(--navy2);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:6px;max-width:600px;width:100%;margin-bottom:48px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.land-search input{flex:1;background:transparent;border:none;color:white;font-size:14px;padding:10px 16px;min-width:0}
+.land-search input::placeholder{color:var(--g500)}
+.land-search select{background:var(--navy3);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--g300);font-size:12px;padding:8px 12px;min-width:100px}
+.land-search select option{background:var(--navy2);color:white}
+.land-search button{padding:10px 24px;background:var(--emerald);border:none;border-radius:8px;color:white;font-weight:600;font-size:13px;transition:var(--tr);white-space:nowrap}
+.land-search button:hover{background:var(--emerald-d)}
+.land-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:700px;width:100%;margin-bottom:48px}
+.land-stat{text-align:center;padding:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:var(--r-lg)}
+.land-stat-v{font-family:var(--ff);font-size:28px;font-weight:700;color:white;margin-bottom:2px}
+.land-stat-l{font-size:11px;color:var(--g400)}
+.land-trend{max-width:700px;width:100%}
+.land-trend-t{font-family:var(--ff);font-size:14px;font-weight:600;color:var(--g400);margin-bottom:14px;text-transform:uppercase;letter-spacing:.8px}
+.land-cats{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.land-cat{display:flex;align-items:center;gap:7px;padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:30px;color:var(--g300);font-size:12px;font-weight:500;transition:var(--tr);cursor:pointer}
+.land-cat:hover{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:var(--emerald)}
+.land-cat i{font-size:14px;color:var(--emerald)}
+.land-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:700px;width:100%;margin-top:32px}
+.land-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:var(--r-lg);padding:18px}
+.land-card-t{font-family:var(--ff);font-size:13px;font-weight:600;color:var(--g300);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.land-card-t i{color:var(--emerald)}
+.land-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;color:var(--g400)}
+.land-row:last-child{border:none}
+.land-row span:last-child{font-weight:600;color:white}
+.land-bar{height:4px;background:rgba(255,255,255,.06);border-radius:4px;margin-top:4px;overflow:hidden}
+.land-bar-fill{height:100%;border-radius:4px;background:var(--emerald);transition:width 1s ease}
+
+/* ═══ AUTH MODAL ═══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);z-index:2000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
+.modal-overlay.show{display:flex;opacity:1}
+.modal{background:var(--white);border-radius:var(--r-2xl);width:420px;max-width:92vw;overflow:hidden;box-shadow:var(--sh-lg);transform:translateY(10px);transition:transform .3s}
+.modal-overlay.show .modal{transform:translateY(0)}
+.modal-tabs{display:flex;border-bottom:1px solid var(--g200)}
+.modal-tab{flex:1;padding:16px;text-align:center;font-weight:600;font-size:13px;color:var(--g400);background:none;border:none;border-bottom:2px solid transparent;transition:var(--tr);cursor:pointer}
+.modal-tab.on{color:var(--emerald);border-bottom-color:var(--emerald)}
+.modal-body{padding:28px}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.modal-field input{width:100%;padding:10px 14px;border:1px solid var(--g200);border-radius:var(--r);font-size:13px;color:var(--g800);transition:var(--tr);background:var(--g50)}
+.modal-field input:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(16,185,129,.1);background:white}
+.btn-auth{width:100%;padding:12px;background:var(--emerald);border:none;border-radius:var(--r);color:white;font-size:14px;font-weight:700;transition:var(--tr);margin-top:6px;cursor:pointer}
+.btn-auth:hover{background:var(--emerald-d)}
+.modal-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--g400);font-size:12px}
+.modal-divider::before,.modal-divider::after{content:'';flex:1;height:1px;background:var(--g200)}
+.social-btns{display:flex;gap:10px}
+.btn-social{flex:1;padding:10px;border:1px solid var(--g200);border-radius:var(--r);background:white;font-size:12px;font-weight:600;color:var(--g700);display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--tr);cursor:pointer}
+.btn-social:hover{border-color:var(--g300);background:var(--g50)}
+.btn-social i{font-size:16px}
+.btn-social.g i{color:#ea4335}.btn-social.l i{color:#0077b5}
+
+/* ═══ APP SHELL ═══ */
+.app{display:grid;grid-template-rows:56px 1fr;height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 20px;gap:0;box-shadow:var(--sh)}
+.logo{display:flex;align-items:center;gap:9px;font-family:var(--ff);font-size:17px;font-weight:700;color:var(--g900);margin-right:20px}
+.logo-icon{width:30px;height:30px;background:var(--emerald);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:13px}
+.nav{display:flex;height:100%}
+.ntab{display:flex;align-items:center;gap:7px;padding:0 14px;font-size:12.5px;font-weight:500;color:var(--g500);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:var(--tr);height:100%}
+.ntab i{font-size:13px}
+.ntab:hover{color:var(--g700)}
+.ntab.on{color:var(--emerald-d);border-bottom-color:var(--emerald);font-weight:600}
+.topbar-r{margin-left:auto;display:flex;align-items:center;gap:10px}
+.api-dot-wrap{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--emerald);padding:5px 11px;background:var(--emerald-l);border:1px solid var(--emerald-b);border-radius:20px}
+.api-dot{width:6px;height:6px;background:var(--emerald);border-radius:50%;animation:blink 2s infinite}
+.topbar-btn{width:34px;height:34px;border:1px solid var(--g200);border-radius:var(--r);background:white;color:var(--g500);display:flex;align-items:center;justify-content:center;transition:var(--tr);position:relative;font-size:14px;cursor:pointer}
+.topbar-btn:hover{background:var(--g50);color:var(--g700)}
+.notif-badge{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;background:var(--coral);border-radius:10px;font-size:9px;font-weight:700;color:white;display:none;align-items:center;justify-content:center;border:2px solid white;padding:0 3px}
+.notif-badge.show{display:flex}
+.avatar-btn{width:34px;height:34px;border-radius:50%;background:var(--emerald);border:2px solid var(--emerald-b);color:white;font-family:var(--ff);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--tr)}
+.avatar-btn:hover{transform:scale(1.05)}
+
+/* ═══ BODY ═══ */
+.body-wrap{display:grid;grid-template-columns:290px 1fr;height:calc(100vh - 56px);overflow:hidden}
+.sidebar{background:var(--white);border-right:1px solid var(--g200);display:flex;flex-direction:column;overflow-y:auto;padding:16px;gap:12px}
+.upload-zone{border:1.5px dashed var(--g300);border-radius:var(--r-lg);padding:18px 14px;text-align:center;cursor:pointer;transition:var(--tr);background:var(--g50)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--emerald);background:var(--emerald-l)}
+.upload-ic{width:40px;height:40px;border-radius:10px;background:var(--emerald-l);border:1px solid var(--emerald-b);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:18px;color:var(--emerald)}
+.upload-t{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--g800);margin-bottom:2px}
+.upload-s{font-size:11px;color:var(--g400)}
+.file-ok{display:none;align-items:center;gap:8px;background:var(--emerald-l);border:1px solid var(--emerald-b);border-radius:var(--r);padding:8px 11px}
+.file-ok.show{display:flex}
+.file-ok i{color:var(--emerald);font-size:13px}
+.file-ok-name{font-size:11px;font-weight:600;color:var(--emerald-d);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-ok-x{cursor:pointer;color:var(--g400);font-size:16px;background:none;border:none;transition:var(--tr);line-height:1}
+.file-ok-x:hover{color:var(--coral)}
+.pc{display:none;border:1px solid var(--g200);border-radius:var(--r-lg);padding:14px;background:var(--white);box-shadow:var(--sh)}
+.pc.show{display:block}
+.pc-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.pc-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--emerald),var(--sky));display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-weight:700;font-size:14px;color:white;flex-shrink:0}
+.pc-name{font-family:var(--ff);font-weight:700;font-size:14px;color:var(--g900)}
+.pc-role{font-size:11px;font-weight:600;color:var(--emerald-d)}
+.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pc-item{background:var(--g50);border-radius:6px;padding:7px 10px}
+.pc-il{font-size:9px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px}
+.pc-iv{font-size:11px;font-weight:600;color:var(--g800)}
+.sb{display:none}.sb.show{display:block}
+.sec-lbl{font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;cursor:default}
+.chip.c1{background:var(--emerald-l);color:var(--emerald-d);border:1px solid var(--emerald-b)}
+.chip.c2{background:var(--sky-l);color:#0369a1;border:1px solid var(--sky-b)}
+.chip.c3{background:var(--violet-l);color:#6d28d9;border:1px solid var(--violet-b)}
+.chip.c4{background:var(--amber-l);color:#b45309;border:1px solid var(--amber-b)}
+.btn-extract{display:none;width:100%;padding:10px;background:var(--emerald);border:none;border-radius:var(--r);color:white;font-family:var(--ff);font-size:12px;font-weight:700;cursor:pointer;transition:var(--tr);align-items:center;justify-content:center;gap:6px}
+.btn-extract.show{display:flex}
+.btn-extract:hover{background:var(--emerald-d)}
+.btn-extract:disabled{opacity:.6;cursor:not-allowed}
+.divider{display:flex;align-items:center;gap:8px}
+.div-line{flex:1;height:1px;background:var(--g200)}
+.div-txt{font-size:10px;color:var(--g400);font-weight:500;white-space:nowrap}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:.5px}
+.field input,.field select,.field textarea{width:100%;background:white;border:1px solid var(--g200);border-radius:var(--r);color:var(--g800);font-size:12px;padding:8px 11px;transition:var(--tr)}
+.field input::placeholder,.field textarea::placeholder{color:var(--g400)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(16,185,129,.1)}
+.form-grp{display:flex;flex-direction:column;gap:8px}
+.btn-launch{width:100%;padding:11px;background:var(--g900);border:none;border-radius:var(--r);color:white;font-family:var(--ff);font-size:13px;font-weight:700;cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-launch:hover{background:var(--g800);transform:translateY(-1px);box-shadow:var(--sh-md)}
+.btn-launch:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ═══ MAIN ═══ */
+.main{overflow-y:auto;scrollbar-width:thin}
+.page{display:none;padding:28px;min-height:100%;animation:fadeUp .3s ease}
+.page.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 140px);text-align:center;gap:16px}
+.empty-ic{width:72px;height:72px;border-radius:20px;background:var(--emerald-l);border:1px solid var(--emerald-b);display:flex;align-items:center;justify-content:center;font-size:32px;color:var(--emerald)}
+.empty-t{font-family:var(--ff);font-size:26px;font-weight:700;color:var(--g900);line-height:1.2;letter-spacing:-.3px}
+.empty-t em{font-style:normal;color:var(--emerald)}
+.empty-d{color:var(--g500);font-size:13px;max-width:340px;line-height:1.7}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;max-width:540px;width:100%}
+.feat{background:white;border:1px solid var(--g200);border-radius:var(--r-lg);padding:16px;text-align:left;box-shadow:var(--sh)}
+.feat-i{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:14px}
+.feat-i.e{background:var(--emerald-l);color:var(--emerald)}.feat-i.s{background:var(--sky-l);color:var(--sky)}.feat-i.a{background:var(--amber-l);color:var(--amber)}
+.feat-tt{font-family:var(--ff);font-size:12px;font-weight:700;color:var(--g800);margin-bottom:2px}
+.feat-ds{font-size:11px;color:var(--g500);line-height:1.5}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 140px);gap:18px;text-align:center}
+.spinner{width:40px;height:40px;border:3px solid var(--g200);border-top-color:var(--emerald);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-t{font-family:var(--ff);font-size:18px;font-weight:700;color:var(--g800)}
+.load-s{font-size:12px;color:var(--g500)}
+.lsteps{display:flex;flex-direction:column;gap:5px;text-align:left;margin-top:6px}
+.lstep{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--g400);padding:7px 14px;border-radius:var(--r);background:white;border:1px solid var(--g200);transition:var(--tr)}
+.lstep.active{color:var(--emerald-d);border-color:var(--emerald-b);background:var(--emerald-l)}
+.lstep.done{color:var(--emerald-d);border-color:var(--emerald-b);background:var(--emerald-l)}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--g300);flex-shrink:0;transition:var(--tr)}
+.lstep.active .ldot{background:var(--emerald)}
+.lstep.done .ldot{background:var(--emerald)}
+.res-hdr{display:flex;align-items:center;gap:9px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--g200);flex-wrap:wrap}
+.res-t{font-family:var(--ff);font-size:20px;font-weight:700;color:var(--g900);letter-spacing:-.3px}
+.pill{padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700}
+.pill.em{background:var(--emerald-l);color:var(--emerald-d);border:1px solid var(--emerald-b)}
+.pill.am{background:var(--amber-l);color:#b45309;border:1px solid var(--amber-b)}
+.scrape-badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--violet-l);color:#6d28d9;border:1px solid var(--violet-b);display:inline-flex;align-items:center;gap:4px}
+.sort-bar{margin-left:auto;display:flex;gap:4px;align-items:center}
+.sort-lbl{font-size:11px;color:var(--g400);margin-right:2px}
+.sort-btn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:white;border:1px solid var(--g200);color:var(--g500);cursor:pointer;transition:var(--tr)}
+.sort-btn:hover,.sort-btn.on{color:var(--emerald-d);border-color:var(--emerald-b);background:var(--emerald-l)}
+.radar-wrap{background:white;border:1px solid var(--g200);border-radius:var(--r-xl);padding:20px;display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start;margin-bottom:18px;box-shadow:var(--sh)}
+.gap-t{font-family:var(--ff);font-size:15px;font-weight:700;color:var(--g900);margin-bottom:2px}
+.gap-s{font-size:11px;color:var(--g400);margin-bottom:12px}
+.gap-rows{display:flex;flex-direction:column;gap:5px}
+.gap-row{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-radius:6px;border:1px solid var(--g200);background:var(--g50);font-size:11px;color:var(--g700)}
+.gbadge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.gbadge.have{background:var(--emerald-l);color:var(--emerald-d);border:1px solid var(--emerald-b)}
+.gbadge.miss{background:var(--amber-l);color:#b45309;border:1px solid var(--amber-b)}
+.jobs{display:flex;flex-direction:column;gap:10px}
+.jcard{background:white;border:1px solid var(--g200);border-radius:var(--r-xl);padding:18px 20px;transition:var(--tr);opacity:0;animation:cardIn .4s forwards;box-shadow:var(--sh);position:relative;overflow:hidden}
+.jcard::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.jcard.high::before{background:var(--emerald)}.jcard.med::before{background:var(--amber)}.jcard.low::before{background:var(--g300)}
+.jcard:hover{border-color:var(--g300);box-shadow:var(--sh-md);transform:translateY(-1px)}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.jcard-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.jcard-logo{width:42px;height:42px;border-radius:10px;background:var(--g100);border:1px solid var(--g200);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-weight:800;font-size:12px;color:var(--emerald-d);flex-shrink:0}
+.jcard-body{flex:1}
+.jcard-t{font-family:var(--ff);font-size:14px;font-weight:700;color:var(--g900);margin-bottom:1px;letter-spacing:-.2px}
+.jcard-co{font-size:11px;font-weight:500;color:var(--g500);margin-bottom:8px}
+.jcard-meta{display:flex;flex-wrap:wrap;gap:4px}
+.mpill{font-size:10px;font-weight:500;color:var(--g600);background:var(--g100);border:1px solid var(--g200);padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
+.mpill.sk{background:var(--emerald-l);color:var(--emerald-d);border-color:var(--emerald-b)}
+.score-box{display:flex;flex-direction:column;align-items:center;justify-content:center;width:58px;height:58px;border-radius:10px;flex-shrink:0}
+.score-box.high{background:var(--emerald-l);border:1.5px solid var(--emerald-b)}
+.score-box.med{background:var(--amber-l);border:1.5px solid var(--amber-b)}
+.score-box.low{background:var(--g100);border:1.5px solid var(--g200)}
+.score-n{font-family:var(--ff);font-size:20px;font-weight:800;line-height:1}
+.score-box.high .score-n{color:var(--emerald-d)}.score-box.med .score-n{color:#b45309}.score-box.low .score-n{color:var(--g500)}
+.score-l{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--g400)}
+.ai-box{padding:10px 13px;border-radius:var(--r);font-size:11px;color:var(--g600);line-height:1.65;background:var(--g50);border-left:2px solid var(--emerald-b);margin-bottom:10px}
+.jcard-ft{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn-voir{font-size:11px;font-weight:600;color:var(--g700);background:white;border:1px solid var(--g200);padding:6px 14px;border-radius:6px;transition:var(--tr);display:inline-flex;align-items:center;gap:5px;cursor:pointer;text-decoration:none}
+.btn-voir:hover{border-color:var(--emerald-b);color:var(--emerald-d);background:var(--emerald-l)}
+.btn-save{font-size:11px;font-weight:600;color:var(--g500);background:white;border:1px solid var(--g200);padding:6px 12px;border-radius:6px;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:4px}
+.btn-save:hover,.btn-save.saved{border-color:var(--amber-b);color:#b45309;background:var(--amber-l)}
+
+/* ═══ MARCHE ═══ */
+.pbi-banner{background:linear-gradient(135deg,var(--navy) 0%,#064e3b 100%);border-radius:var(--r-xl);padding:22px 28px;display:flex;align-items:center;gap:24px;margin-bottom:20px;box-shadow:var(--sh-lg)}
+.pbi-ic{width:52px;height:52px;background:rgba(255,255,255,.12);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px;color:var(--emerald)}
+.pbi-body{flex:1}
+.pbi-t{font-family:var(--ff);font-size:17px;font-weight:700;color:white;margin-bottom:3px}
+.pbi-s{font-size:12px;color:rgba(255,255,255,.65);line-height:1.6}
+.btn-pbi{padding:11px 22px;background:var(--emerald);border:none;border-radius:var(--r);color:white;font-family:var(--ff);font-size:13px;font-weight:700;cursor:pointer;transition:var(--tr);display:flex;align-items:center;gap:7px;flex-shrink:0}
+.btn-pbi:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(16,185,129,.4)}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:white;border:1px solid var(--g200);border-radius:var(--r-lg);padding:16px;box-shadow:var(--sh)}
+.kpi-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.kpi-lbl{font-size:10px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.5px}
+.kpi-ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.kpi-ic.e{background:var(--emerald-l);color:var(--emerald)}.kpi-ic.s{background:var(--sky-l);color:var(--sky)}.kpi-ic.a{background:var(--amber-l);color:var(--amber)}.kpi-ic.v{background:var(--violet-l);color:var(--violet)}
+.kpi-v{font-family:var(--ff);font-size:26px;font-weight:800;color:var(--g900);line-height:1}
+.kpi-chg{font-size:11px;font-weight:600;color:var(--emerald-d);margin-top:4px}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chart-card{background:white;border:1px solid var(--g200);border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh)}
+.chart-t{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--g800);margin-bottom:14px}
+
+/* ═══ SAVED / ALERTES / ROADMAP / ACCOUNT ═══ */
+.pg-hd{margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--g200)}
+.pg-t{font-family:var(--ff);font-size:20px;font-weight:700;color:var(--g900);letter-spacing:-.3px;display:flex;align-items:center;gap:9px}
+.pg-s{font-size:12px;color:var(--g500);margin-top:3px}
+.empty-sub{text-align:center;padding:60px 0;color:var(--g400)}
+.empty-sub i{font-size:40px;color:var(--g300);margin-bottom:12px;display:block}
+.empty-sub p{font-size:13px;color:var(--g500);margin-bottom:3px}
+.empty-sub small{font-size:11px}
+.alert-form{background:white;border:1px solid var(--g200);border-radius:var(--r-xl);padding:18px 20px;margin-bottom:16px;box-shadow:var(--sh)}
+.alert-form-t{font-family:var(--ff);font-size:14px;font-weight:700;color:var(--g900);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.alert-form-t i{color:var(--emerald)}
+.alert-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.btn-create{padding:10px 18px;background:var(--emerald);border:none;border-radius:var(--r);color:white;font-family:var(--ff);font-size:12px;font-weight:700;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:6px}
+.btn-create:hover{background:var(--emerald-d);transform:translateY(-1px)}
+.alerts-list{display:flex;flex-direction:column;gap:8px}
+.alert-card{background:white;border:1px solid var(--g200);border-radius:var(--r-lg);padding:14px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh)}
+.alert-ic{width:36px;height:36px;border-radius:8px;background:var(--amber-l);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;color:var(--amber)}
+.alert-body{flex:1}
+.alert-t{font-family:var(--ff);font-size:12px;font-weight:700;color:var(--g800)}
+.alert-s{font-size:10px;color:var(--g400);margin-top:2px}
+.alert-email-tag{font-size:10px;font-weight:600;color:var(--sky);background:var(--sky-l);padding:2px 7px;border-radius:20px;border:1px solid var(--sky-b);margin-left:6px}
+.toggle{width:38px;height:20px;background:var(--g200);border-radius:20px;border:none;cursor:pointer;position:relative;transition:var(--tr);flex-shrink:0}
+.toggle.on{background:var(--emerald)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:var(--tr);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{left:20px}
+.btn-del{width:28px;height:28px;border:1px solid var(--g200);border-radius:6px;background:white;color:var(--g400);display:flex;align-items:center;justify-content:center;transition:var(--tr);flex-shrink:0;font-size:12px;cursor:pointer}
+.btn-del:hover{border-color:var(--coral-b);color:var(--coral);background:var(--coral-l)}
+.roadmap-path{position:relative;padding-left:32px}
+.roadmap-path::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:2px;background:var(--g200)}
+.rm-step{position:relative;margin-bottom:24px;padding:18px;background:white;border:1px solid var(--g200);border-radius:var(--r-lg);box-shadow:var(--sh);transition:var(--tr)}
+.rm-step:hover{box-shadow:var(--sh-md);transform:translateX(3px)}
+.rm-dot{position:absolute;left:-25px;top:20px;width:18px;height:18px;border-radius:50%;border:3px solid var(--g200);background:white;z-index:1;transition:var(--tr)}
+.rm-step.done .rm-dot{background:var(--emerald);border-color:var(--emerald)}
+.rm-step.current .rm-dot{background:var(--amber);border-color:var(--amber);box-shadow:0 0 0 4px rgba(245,158,11,.2)}
+.rm-step-t{font-family:var(--ff);font-size:14px;font-weight:700;color:var(--g900);margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.rm-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.rm-badge.done{background:var(--emerald-l);color:var(--emerald-d);border:1px solid var(--emerald-b)}
+.rm-badge.current{background:var(--amber-l);color:#b45309;border:1px solid var(--amber-b)}
+.rm-badge.next{background:var(--g100);color:var(--g500);border:1px solid var(--g200)}
+.rm-step-d{font-size:12px;color:var(--g500);margin-bottom:10px;line-height:1.6}
+.rm-skills{display:flex;flex-wrap:wrap;gap:4px}
+.rm-sk{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--emerald-l);color:var(--emerald-d);border:1px solid var(--emerald-b);display:inline-flex;align-items:center;gap:3px}
+.rm-sk.miss{background:var(--amber-l);color:#b45309;border:1px solid var(--amber-b)}
+.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.acc-card{background:white;border:1px solid var(--g200);border-radius:var(--r-xl);padding:20px;box-shadow:var(--sh)}
+.acc-card-t{font-family:var(--ff);font-size:14px;font-weight:700;color:var(--g900);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.acc-card-t i{color:var(--emerald)}
+.acc-avatar-lg{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--emerald),var(--sky));display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-weight:700;font-size:24px;color:white;margin:0 auto 12px}
+.acc-name{text-align:center;font-family:var(--ff);font-size:18px;font-weight:700;color:var(--g900)}
+.acc-email{text-align:center;font-size:12px;color:var(--g500);margin-bottom:16px}
+.acc-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--g100);font-size:12px}
+.acc-row:last-child{border:none}
+.acc-row-l{color:var(--g500);font-weight:500}
+.acc-row-v{color:var(--g800);font-weight:600}
+.ats-score{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.ats-ring{width:80px;height:80px;position:relative;flex-shrink:0}
+.ats-ring canvas{width:80px;height:80px}
+.ats-ring-v{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:22px;font-weight:800;color:var(--emerald-d)}
+.ats-info{flex:1}
+.ats-info-t{font-family:var(--ff);font-size:14px;font-weight:700;color:var(--g900);margin-bottom:3px}
+.ats-info-s{font-size:11px;color:var(--g500);line-height:1.6}
+.ats-tips{display:flex;flex-direction:column;gap:6px}
+.ats-tip{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:var(--r);font-size:11px;line-height:1.5}
+.ats-tip.good{background:var(--emerald-l);color:var(--emerald-d);border:1px solid var(--emerald-b)}
+.ats-tip.warn{background:var(--amber-l);color:#b45309;border:1px solid var(--amber-b)}
+.ats-tip.bad{background:var(--coral-l);color:var(--coral);border:1px solid var(--coral-b)}
+.ats-tip i{margin-top:1px;flex-shrink:0}
+.btn-logout{margin-top:14px;padding:9px 18px;border:1px solid var(--coral-b);border-radius:var(--r);background:var(--coral-l);color:var(--coral);font-size:12px;font-weight:600;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:6px}
+.btn-logout:hover{background:var(--coral);color:white}
+
+/* ═══ CHATBOT ═══ */
+.chat-fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--emerald);border:none;color:white;font-size:22px;box-shadow:0 4px 20px rgba(16,185,129,.4);cursor:pointer;z-index:900;transition:var(--tr);display:flex;align-items:center;justify-content:center}
+.chat-fab:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(16,185,129,.5)}
+.chat-fab.hidden{display:none}
+.chat-panel{position:fixed;bottom:24px;right:24px;width:380px;max-height:560px;background:white;border:1px solid var(--g200);border-radius:var(--r-2xl);box-shadow:var(--sh-lg);z-index:901;display:none;flex-direction:column;overflow:hidden;animation:chatIn .3s ease}
+.chat-panel.show{display:flex}
+@keyframes chatIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.chat-head{padding:16px 18px;background:var(--navy);color:white;display:flex;align-items:center;gap:10px}
+.chat-head-ic{width:34px;height:34px;border-radius:50%;background:var(--emerald);display:flex;align-items:center;justify-content:center;font-size:15px}
+.chat-head-t{font-family:var(--ff);font-size:14px;font-weight:700}
+.chat-head-s{font-size:10px;opacity:.6}
+.chat-close{margin-left:auto;background:none;border:none;color:white;font-size:18px;cursor:pointer;opacity:.7;transition:var(--tr)}
+.chat-close:hover{opacity:1}
+.chat-topics{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--g100);overflow-x:auto;flex-shrink:0}
+.chat-topic{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--g200);background:white;color:var(--g600);cursor:pointer;white-space:nowrap;transition:var(--tr)}
+.chat-topic:hover,.chat-topic.on{background:var(--emerald-l);color:var(--emerald-d);border-color:var(--emerald-b)}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;max-height:340px;min-height:200px}
+.chat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:12px;line-height:1.6;animation:fadeUp .2s ease}
+.chat-msg.bot{background:var(--g50);color:var(--g700);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-msg.user{background:var(--emerald);color:white;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-msg.bot strong{color:var(--emerald-d)}
+.typing-dots{display:flex;gap:4px;padding:10px 14px;align-self:flex-start}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--g400);animation:typingBounce .6s infinite}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+@keyframes typingBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.chat-input{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--g100);flex-shrink:0}
+.chat-input input{flex:1;padding:9px 14px;border:1px solid var(--g200);border-radius:20px;font-size:12px;color:var(--g800);background:var(--g50)}
+.chat-input input:focus{border-color:var(--emerald);background:white}
+.chat-input button{width:36px;height:36px;border-radius:50%;background:var(--emerald);border:none;color:white;font-size:14px;cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center}
+.chat-input button:hover{background:var(--emerald-d)}
+
+/* ═══ EMAIL NOTIF ═══ */
+.email-notif{position:fixed;bottom:24px;left:24px;background:white;border:1px solid var(--g200);border-radius:var(--r-xl);padding:16px;box-shadow:var(--sh-lg);z-index:999;width:320px;opacity:0;transform:translateY(10px) scale(.97);transition:var(--tr);pointer-events:none}
+.email-notif.show{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+.en-hd{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.en-ic{width:32px;height:32px;border-radius:8px;background:var(--emerald-l);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--emerald);flex-shrink:0}
+.en-title{font-family:var(--ff);font-size:12px;font-weight:700;color:var(--g900)}
+.en-sub{font-size:11px;color:var(--g500)}
+.en-body{font-size:11px;color:var(--g600);line-height:1.6;padding:8px 10px;background:var(--g50);border-radius:7px;border-left:2px solid var(--emerald)}
+.en-close{position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;color:var(--g400);font-size:16px}
+.en-close:hover{color:var(--g700)}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--g900);color:white;padding:10px 18px;border-radius:var(--r-lg);font-size:12px;font-weight:500;box-shadow:var(--sh-lg);opacity:0;transition:var(--tr);z-index:9998;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--coral)}
+.spin-sm{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
+
+@media(max-width:900px){
+.body-wrap{grid-template-columns:1fr}.sidebar{display:none}
+.land-stats{grid-template-columns:1fr 1fr}.land-grid{grid-template-columns:1fr}
+.kpi-grid{grid-template-columns:1fr 1fr}.charts-row{grid-template-columns:1fr}
+.account-grid{grid-template-columns:1fr}.radar-wrap{grid-template-columns:1fr}
+.chat-panel{width:calc(100vw - 48px);right:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LANDING ═══════════ -->
+<div id="landing">
+  <div class="land-hero">
+    <div class="land-mesh"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
+    <nav class="land-nav">
+      <div class="land-logo"><div class="land-logo-icon"><i class="fa-solid fa-bolt"></i></div> JobSpark</div>
+      <div class="land-nav-btns">
+        <button class="btn-ghost" onclick="showAuth('login')">Se connecter</button>
+        <button class="btn-primary" onclick="showAuth('register')">Creer un compte</button>
+      </div>
+    </nav>
+    <div class="land-center">
+      <div class="land-badge"><i class="fa-solid fa-circle"></i> Plateforme IA specialisee Data</div>
+      <h1 class="land-h1">Trouver des emplois <em>Data</em> selon vos competences</h1>
+      <p class="land-sub">Scraping automatique, matching IA, alertes email et coaching personnalise pour Data Analyst, Data Engineer et Data Scientist.</p>
+      <div class="land-search">
+        <input type="text" id="landJob" placeholder="Poste : Data Engineer...">
+        <input type="text" id="landCity" placeholder="Ville : Paris...">
+        <select id="landSkill"><option value="">Competence</option><option>Python</option><option>SQL</option><option>Spark</option><option>Machine Learning</option><option>Airflow</option><option>Kafka</option><option>Power BI</option><option>AWS</option></select>
+        <button onclick="landSearch()"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
+      </div>
+      <div class="land-stats">
+        <div class="land-stat"><div class="land-stat-v" data-count="2847">0</div><div class="land-stat-l">Offres actives</div></div>
+        <div class="land-stat"><div class="land-stat-v" data-count="89">0</div><div class="land-stat-l">% matching IA</div></div>
+        <div class="land-stat"><div class="land-stat-v" data-count="340">0</div><div class="land-stat-l">Entreprises</div></div>
+        <div class="land-stat"><div class="land-stat-v" data-count="12">0</div><div class="land-stat-l">Villes actives</div></div>
+      </div>
+      <div class="land-trend">
+        <div class="land-trend-t">Metiers les plus demandes</div>
+        <div class="land-cats">
+          <div class="land-cat"><i class="fa-solid fa-database"></i> Data Engineer</div>
+          <div class="land-cat"><i class="fa-solid fa-chart-line"></i> Data Analyst</div>
+          <div class="land-cat"><i class="fa-solid fa-brain"></i> Data Scientist</div>
+          <div class="land-cat"><i class="fa-solid fa-robot"></i> ML Engineer</div>
+          <div class="land-cat"><i class="fa-solid fa-cloud"></i> Cloud Data Engineer</div>
+          <div class="land-cat"><i class="fa-solid fa-cogs"></i> Analytics Engineer</div>
+        </div>
+      </div>
+      <div class="land-grid">
+        <div class="land-card">
+          <div class="land-card-t"><i class="fa-solid fa-euro-sign"></i> Salaires moyens / an</div>
+          <div class="land-row"><span>Data Analyst</span><span>38-50K</span></div>
+          <div class="land-row"><span>Data Engineer</span><span>45-65K</span></div>
+          <div class="land-row"><span>Data Scientist</span><span>50-70K</span></div>
+          <div class="land-row"><span>ML Engineer</span><span>55-80K</span></div>
+          <div class="land-row"><span>Lead Data</span><span>70-100K</span></div>
+        </div>
+        <div class="land-card">
+          <div class="land-card-t"><i class="fa-solid fa-location-dot"></i> Villes qui recrutent</div>
+          <div class="land-row"><span>Paris</span><span>820 offres</span></div><div class="land-bar"><div class="land-bar-fill" style="width:92%"></div></div>
+          <div class="land-row"><span>Lyon</span><span>280 offres</span></div><div class="land-bar"><div class="land-bar-fill" style="width:52%"></div></div>
+          <div class="land-row"><span>Bordeaux</span><span>180 offres</span></div><div class="land-bar"><div class="land-bar-fill" style="width:34%"></div></div>
+          <div class="land-row"><span>Remote</span><span>450 offres</span></div><div class="land-bar"><div class="land-bar-fill" style="width:68%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ AUTH MODAL ═══════════ -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <div class="modal-tabs">
+      <button class="modal-tab on" id="tabLogin" onclick="authTab('login')">Se connecter</button>
+      <button class="modal-tab" id="tabRegister" onclick="authTab('register')">Creer un compte</button>
+    </div>
+    <div class="modal-body" id="authLogin">
+      <div class="modal-field"><label>Email</label><input type="email" id="loginEmail" placeholder="vous@email.com"></div>
+      <div class="modal-field"><label>Mot de passe</label><input type="password" id="loginPass" placeholder="............"></div>
+      <button class="btn-auth" onclick="doLogin()">Se connecter</button>
+      <div class="modal-divider">ou</div>
+     
+    </div>
+    <div class="modal-body" id="authRegister" style="display:none">
+      <div class="modal-field"><label>Nom complet</label><input type="text" id="regName" placeholder="Jean Dupont"></div>
+      <div class="modal-field"><label>Email</label><input type="email" id="regEmail" placeholder="vous@email.com"></div>
+      <div class="modal-field"><label>Mot de passe</label><input type="password" id="regPass" placeholder="Min. 6 caracteres"></div>
+      <div class="modal-field"><label>Confirmer</label><input type="password" id="regPass2" placeholder="............"></div>
+      <button class="btn-auth" onclick="doRegister()">Creer mon compte</button>
+      <div class="modal-divider">ou</div>
+      <div class="social-btns">
+        <button class="btn-social g" onclick="socialLogin('Google')"><i class="fa-brands fa-google"></i> Google</button>
+        <button class="btn-social l" onclick="socialLogin('LinkedIn')"><i class="fa-brands fa-linkedin"></i> LinkedIn</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ APP ═══════════ -->
+<div class="app" id="appShell" style="display:none">
+  <header class="topbar">
+    <div class="logo"><div class="logo-icon"><i class="fa-solid fa-bolt"></i></div> JobSpark</div>
+    <nav class="nav" id="mainNav">
+      <button class="ntab on" data-page="recommend" onclick="goPage('recommend')"><i class="fa-solid fa-sparkles"></i> Recommandations</button>
+      <button class="ntab" data-page="stats" onclick="goPage('stats')"><i class="fa-solid fa-chart-column"></i> Marche</button>
+      <button class="ntab" data-page="saved" onclick="goPage('saved')"><i class="fa-solid fa-bookmark"></i> Sauvegardes</button>
+      <button class="ntab" data-page="roadmap" onclick="goPage('roadmap')"><i class="fa-solid fa-road"></i> Roadmap</button>
+      <button class="ntab" data-page="account" onclick="goPage('account')"><i class="fa-solid fa-user"></i> Mon compte</button>
+    </nav>
+    <div class="topbar-r">
+      <div class="api-dot-wrap"><span class="api-dot"></span> API connectee</div>
+      <button class="topbar-btn" onclick="showNotifPanel()" title="Notifications"><i class="fa-solid fa-bell"></i><span class="notif-badge" id="notifBadge">0</span></button>
+      <div class="avatar-btn" id="topAv" onclick="goPage('account')">?</div>
+    </div>
+  </header>
+  <div class="body-wrap">
+    <aside class="sidebar">
+      <div class="upload-zone" id="uz" onclick="document.getElementById('cv').click()">
+        <input type="file" id="cv" accept=".pdf,.txt,.docx" style="display:none" onchange="handleFile(event)">
+        <div class="upload-ic"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+        <div class="upload-t">Uploader votre CV</div>
+        <div class="upload-s">PDF / DOCX / TXT — extraction IA</div>
+      </div>
+      <div class="file-ok" id="fok"><i class="fa-solid fa-circle-check"></i><span class="file-ok-name" id="fname">—</span><button class="file-ok-x" onclick="resetCV()">&times;</button></div>
+      <div class="pc" id="pc">
+        <div class="pc-head"><div class="pc-av" id="pcAv">?</div><div><div class="pc-name" id="pcN">—</div><div class="pc-role" id="pcR">—</div></div></div>
+        <div class="pc-grid">
+          <div class="pc-item"><div class="pc-il">Experience</div><div class="pc-iv" id="pcE">—</div></div>
+          <div class="pc-item"><div class="pc-il">Formation</div><div class="pc-iv" id="pcF">—</div></div>
+          <div class="pc-item"><div class="pc-il">Langues</div><div class="pc-iv" id="pcL">—</div></div>
+          <div class="pc-item"><div class="pc-il">Ville</div><div class="pc-iv" id="pcLoc">—</div></div>
+        </div>
+      </div>
+      <div class="sb" id="sb"><div class="sec-lbl">Competences detectees</div><div class="chips" id="chipsW"></div></div>
+      <button class="btn-extract" id="bex" onclick="extractCV()"><i class="fa-solid fa-wand-magic-sparkles"></i><span id="exlbl">Analyser le CV avec l'IA</span></button>
+      <div class="divider"><div class="div-line"></div><div class="div-txt">ou saisie manuelle</div><div class="div-line"></div></div>
+      <div class="form-grp">
+        <div class="field"><label>Poste recherche</label><input type="text" id="fT" placeholder="Data Analyst..."></div>
+        <div class="field"><label>Competences</label><input type="text" id="fS" placeholder="Python, SQL, Spark..."></div>
+        <div class="field"><label>Experience</label><input type="text" id="fX" placeholder="2 ans, Junior..."></div>
+        <div class="field"><label>Ville / Remote</label><input type="text" id="fC" placeholder="Paris, Remote..."></div>
+        <div class="field"><label>Categorie</label><select id="fK"><option value="">Toutes les categories</option><option>Data Analyst</option><option>Data Scientist</option><option>Data Engineer</option><option>Machine Learning</option><option>DevOps / Cloud</option><option>BI / Analytics</option></select></div>
+        <button class="btn-launch" id="blch" onclick="launch()"><i class="fa-solid fa-magnifying-glass"></i><span>Trouver mes offres</span></button>
+      </div>
+    </aside>
+    <main class="main">
+      <!-- RECOMMANDATIONS -->
+      <div class="page on" id="page-recommend">
+        <div class="empty" id="emptyState">
+          <div class="empty-ic"><i class="fa-solid fa-sparkles"></i></div>
+          <div class="empty-t">Votre prochain poste<br><em>commence ici</em></div>
+          <div class="empty-d">Les offres viennent du scraping automatique. Importez votre CV ou remplissez le formulaire pour trouver les meilleures correspondances.</div>
+          <div class="feat-grid">
+            <div class="feat"><div class="feat-i e"><i class="fa-solid fa-robot"></i></div><div class="feat-tt">Scraping auto</div><div class="feat-ds">Offres mises a jour depuis 3 sources</div></div>
+            <div class="feat"><div class="feat-i s"><i class="fa-solid fa-envelope"></i></div><div class="feat-tt">Email automatique</div><div class="feat-ds">Notification par email au matching</div></div>
+            <div class="feat"><div class="feat-i a"><i class="fa-solid fa-chart-pie"></i></div><div class="feat-tt">Power BI</div><div class="feat-ds">Dashboard analytique dans l'onglet Marche</div></div>
+          </div>
+        </div>
+        <div id="resultsArea" style="display:none"></div>
+      </div>
+      <!-- MARCHE -->
+      <div class="page" id="page-stats">
+        <div class="pbi-banner"><div class="pbi-ic"><i class="fa-solid fa-chart-column"></i></div><div class="pbi-body"><div class="pbi-t">Dashboard Power BI</div><div class="pbi-s">Accedez a votre rapport Power BI pour une analyse avancee du marche.</div></div><button class="btn-pbi" onclick="openPowerBI()"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ouvrir Power BI</button></div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-hd"><div class="kpi-lbl">Offres totales</div><div class="kpi-ic e"><i class="fa-solid fa-briefcase"></i></div></div><div class="kpi-v" id="sTotal">—</div><div class="kpi-chg">scraping actif</div></div>
+          <div class="kpi"><div class="kpi-hd"><div class="kpi-lbl">Top categorie</div><div class="kpi-ic s"><i class="fa-solid fa-arrow-trend-up"></i></div></div><div class="kpi-v" id="sTop">—</div><div class="kpi-chg">forte demande</div></div>
+          <div class="kpi"><div class="kpi-hd"><div class="kpi-lbl">Ville principale</div><div class="kpi-ic a"><i class="fa-solid fa-location-dot"></i></div></div><div class="kpi-v" id="sCity">—</div><div class="kpi-chg">marche actif</div></div>
+          <div class="kpi"><div class="kpi-hd"><div class="kpi-lbl">Sources</div><div class="kpi-ic v"><i class="fa-solid fa-database"></i></div></div><div class="kpi-v" id="sSrc">—</div><div class="kpi-chg">actives</div></div>
+        </div>
+        <div class="charts-row"><div class="chart-card"><div class="chart-t">Repartition par categorie</div><canvas id="chartCat" height="220"></canvas></div><div class="chart-card"><div class="chart-t">Offres par source</div><canvas id="chartSrc" height="220"></canvas></div></div>
+      </div>
+      <!-- SAVED -->
+      <div class="page" id="page-saved">
+        <div class="pg-hd"><div class="pg-t">Offres sauvegardees <span class="pill em" id="savedCount">0</span></div><div class="pg-s">Offres bookmarkées pour postuler plus tard</div></div>
+        <div id="savedList"><div class="empty-sub"><i class="fa-solid fa-bookmark"></i><p>Aucune offre sauvegardee</p><small>Cliquez "Sauvegarder" sur une offre</small></div></div>
+      </div>
+      <!-- ALERTES -->
+      <!-- ROADMAP -->
+      <div class="page" id="page-roadmap">
+        <div class="pg-hd"><div class="pg-t"><i class="fa-solid fa-road" style="color:var(--emerald)"></i> Roadmap d'apprentissage</div><div class="pg-s">Parcours recommande selon vos competences et les offres du marche</div></div>
+        <div id="roadmapContent"><div class="empty-sub"><i class="fa-solid fa-road"></i><p>Importez votre CV pour generer votre roadmap</p><small>L'IA analysera vos lacunes et creera un parcours personnalise</small></div></div>
+      </div>
+      <!-- MON COMPTE -->
+      <div class="page" id="page-account">
+        <div class="pg-hd"><div class="pg-t"><i class="fa-solid fa-user-gear" style="color:var(--emerald)"></i> Mon compte</div><div class="pg-s">Votre profil, CV et parametres</div></div>
+        <div class="account-grid" id="accountGrid">
+          <div class="acc-card">
+            <div class="acc-card-t"><i class="fa-solid fa-id-card"></i> Profil</div>
+            <div class="acc-avatar-lg" id="accAv">?</div>
+            <div class="acc-name" id="accName">Utilisateur</div>
+            <div class="acc-email" id="accEmail">—</div>
+            <div class="acc-row"><span class="acc-row-l">Poste actuel</span><span class="acc-row-v" id="accRole">—</span></div>
+            <div class="acc-row"><span class="acc-row-l">Ville</span><span class="acc-row-v" id="accCity">—</span></div>
+            <div class="acc-row"><span class="acc-row-l">Experience</span><span class="acc-row-v" id="accExp">—</span></div>
+            <div class="acc-row"><span class="acc-row-l">CV uploade</span><span class="acc-row-v" id="accCv">Non</span></div>
+            <div class="acc-row"><span class="acc-row-l">Offres sauvegardees</span><span class="acc-row-v" id="accSaved">0</span></div>
+            <div class="acc-row"><span class="acc-row-l">Candidatures</span><span class="acc-row-v" id="accApps">0</span></div>
+            <button class="btn-logout" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Se deconnecter</button>
+          </div>
+          <div class="acc-card">
+            <div class="acc-card-t"><i class="fa-solid fa-file-shield"></i> Analyse ATS du CV</div>
+            <div id="atsContent"><div class="empty-sub" style="padding:20px 0"><i class="fa-solid fa-file-circle-question"></i><p>Uploadez votre CV pour l'analyse ATS</p></div></div>
+          </div>
+          <div class="acc-card" style="grid-column:1/-1">
+            <div class="acc-card-t"><i class="fa-solid fa-tags"></i> Competences detectees</div>
+            <div id="accSkills" style="display:flex;flex-wrap:wrap;gap:6px"><span style="color:var(--g400);font-size:12px">Aucune competence detectee</span></div>
+          </div>
+          <div class="acc-card" style="grid-column:1/-1">
+            <div class="acc-card-t"><i class="fa-solid fa-clock-rotate-left"></i> Historique des candidatures</div>
+            <div id="accHistory"><div class="empty-sub" style="padding:20px 0"><i class="fa-solid fa-paper-plane"></i><p>Aucune candidature envoyee</p></div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- CHATBOT -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()" style="display:none"><i class="fa-solid fa-message"></i></button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head"><div class="chat-head-ic"><i class="fa-solid fa-robot"></i></div><div><div class="chat-head-t">JobSpark IA</div><div class="chat-head-s">Coaching & preparation</div></div><button class="chat-close" onclick="toggleChat()">&times;</button></div>
+  <div class="chat-topics">
+    <button class="chat-topic on" onclick="chatTopic('interview',this)">Preparation entretien</button>
+    <button class="chat-topic" onclick="chatTopic('cv',this)">Coaching CV</button>
+    <button class="chat-topic" onclick="chatTopic('career',this)">Conseils carriere</button>
+  </div>
+  <div class="chat-msgs" id="chatMsgs"><div class="chat-msg bot">Bonjour ! Je suis votre assistant IA. Choisissez un sujet ou posez-moi une question sur les metiers Data.</div></div>
+  <div class="chat-input"><input type="text" id="chatIn" placeholder="Posez votre question..." onkeydown="if(event.key==='Enter')sendChat()"><button onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button></div>
+</div>
+
+
+<!-- TOAST -->
+<div class="toast" id="tst"></div>
+
+<script>
+/* ═══ CONFIG ═══ */
+const API='http://localhost:5000';
+const POWERBI_URL='https://app.powerbi.com/view?r=VOTRE_ID';
+
+let profile=null,radar=null,cCat=null,cSrc=null;
+let currentFile=null,currentUser=null;
+let savedJobs=JSON.parse(localStorage.getItem('js_saved')||'[]');
+let alerts=JSON.parse(localStorage.getItem('js_alerts')||'[]');
+let applications=JSON.parse(localStorage.getItem('js_apps')||'[]');
+let notifCount=0,chatMode='interview';
+
+/* ═══ LANDING ═══ */
+document.querySelectorAll('.land-stat-v').forEach(function(el){
+  var target=parseInt(el.dataset.count);
+  var cur=0;var step=Math.max(1,Math.floor(target/40));
+  var iv=setInterval(function(){
+    cur+=step;if(cur>=target){cur=target;clearInterval(iv);}
+    el.textContent=cur.toLocaleString();
+  },30);
+});
+
+function landSearch(){
+  var j=document.getElementById('landJob').value;
+  var c=document.getElementById('landCity').value;
+  var s=document.getElementById('landSkill').value;
+  if(!j&&!c&&!s){toast('Remplissez au moins un champ','err');return;}
+  showAuth('register');
+  setTimeout(function(){
+    if(j)document.getElementById('fT').value=j;
+    if(c)document.getElementById('fC').value=c;
+    if(s){var ex=document.getElementById('fS').value;document.getElementById('fS').value=ex?ex+', '+s:s;}
+  },600);
+}
+
+/* ═══ AUTH ═══ */
+function showAuth(tab){
+  document.getElementById('authModal').classList.add('show');
+  authTab(tab);
+}
+function hideAuth(){document.getElementById('authModal').classList.remove('show');}
+
+// Fermer le modal en cliquant en dehors
+document.getElementById('authModal').addEventListener('click',function(e){
+  if(e.target===this)hideAuth();
+});
+
+function authTab(tab){
+  var tl=document.getElementById('tabLogin');
+  var tr=document.getElementById('tabRegister');
+  tl.classList.remove('on');tr.classList.remove('on');
+  if(tab==='login'){
+    tl.classList.add('on');
+    document.getElementById('authLogin').style.display='';
+    document.getElementById('authRegister').style.display='none';
+  }else{
+    tr.classList.add('on');
+    document.getElementById('authLogin').style.display='none';
+    document.getElementById('authRegister').style.display='';
+  }
+}
+
+function doLogin(){
+  var email=document.getElementById('loginEmail').value.trim();
+  var pass=document.getElementById('loginPass').value;
+  if(!email||!pass){toast('Remplissez tous les champs','err');return;}
+  currentUser={name:email.split('@')[0],email:email};
+  enterApp();
+}
+
+function doRegister(){
+  var name=document.getElementById('regName').value.trim();
+  var email=document.getElementById('regEmail').value.trim();
+  var pass=document.getElementById('regPass').value;
+  var pass2=document.getElementById('regPass2').value;
+  if(!name||!email||!pass){toast('Remplissez tous les champs','err');return;}
+  if(pass!==pass2){toast('Les mots de passe ne correspondent pas','err');return;}
+  if(pass.length<6){toast('Mot de passe trop court (min. 6)','err');return;}
+  currentUser={name:name,email:email};
+  enterApp();
+}
+
+function socialLogin(provider){
+  currentUser={name:'Utilisateur '+provider,email:provider.toLowerCase()+'@jobspark.io'};
+  enterApp();
+}
+
+function enterApp(){
+  hideAuth();
+  var landing=document.getElementById('landing');
+  landing.classList.add('hide');
+  setTimeout(function(){landing.style.display='none';},500);
+  document.getElementById('appShell').style.display='';
+  document.getElementById('chatFab').style.display='';
+  updateUserUI();
+  toast('Bienvenue, '+currentUser.name+' !');
+}
+
+function doLogout(){
+  currentUser=null;profile=null;resetCV();
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('chatFab').style.display='none';
+  document.getElementById('chatPanel').classList.remove('show');
+  var landing=document.getElementById('landing');
+  landing.style.display='';
+  setTimeout(function(){landing.classList.remove('hide');},50);
+}
+
+function updateUserUI(){
+  if(!currentUser)return;
+  var ini=currentUser.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+  document.getElementById('topAv').textContent=ini;
+  document.getElementById('accAv').textContent=ini;
+  document.getElementById('accName').textContent=currentUser.name;
+  document.getElementById('accEmail').textContent=currentUser.email;
+  if(document.getElementById('alertEmail'))document.getElementById('alertEmail').value=currentUser.email;
+}
+
+/* ═══ NAV ═══ */
+function goPage(p){
+  var pages=document.querySelectorAll('.page');
+  for(var i=0;i<pages.length;i++)pages[i].classList.remove('on');
+  var tabs=document.querySelectorAll('.ntab');
+  for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('on');
+  document.getElementById('page-'+p).classList.add('on');
+  var tabBtn=document.querySelector('[data-page="'+p+'"]');
+  if(tabBtn)tabBtn.classList.add('on');
+  if(p==='stats')loadStats();
+  if(p==='saved')renderSaved();
+  if(p==='alerts')renderAlerts();
+  if(p==='roadmap')renderRoadmap();
+  if(p==='account')renderAccount();
+}
+
+/* ═══ POWER BI ═══ */
+function openPowerBI(){
+  if(POWERBI_URL.indexOf('VOTRE_ID')>=0){toast('Configurez POWERBI_URL dans le code','err');return;}
+  window.open(POWERBI_URL,'_blank');
+}
+
+/* ═══ CV UPLOAD ═══ */
+function handleFile(e){
+  var f=e.target.files[0];if(!f)return;
+  currentFile=f;
+  document.getElementById('fname').textContent=f.name;
+  document.getElementById('fok').classList.add('show');
+  document.getElementById('uz').style.display='none';
+  document.getElementById('bex').classList.add('show');
+  toast('Fichier charge');
+}
+
+var uz=document.getElementById('uz');
+uz.addEventListener('dragover',function(e){e.preventDefault();uz.classList.add('drag');});
+uz.addEventListener('dragleave',function(){uz.classList.remove('drag');});
+uz.addEventListener('drop',function(e){
+  e.preventDefault();uz.classList.remove('drag');
+  var f=e.dataTransfer.files[0];if(!f)return;
+  currentFile=f;
+  document.getElementById('fname').textContent=f.name;
+  document.getElementById('fok').classList.add('show');
+  document.getElementById('uz').style.display='none';
+  document.getElementById('bex').classList.add('show');
+  toast('Fichier charge');
+});
+
+function resetCV(){
+  currentFile=null;
+  document.getElementById('fok').classList.remove('show');
+  document.getElementById('uz').style.display='';
+  document.getElementById('bex').classList.remove('show');
+  document.getElementById('pc').classList.remove('show');
+  document.getElementById('sb').classList.remove('show');
+  document.getElementById('cv').value='';
+}
+
+/* ═══ EXTRACT CV ═══ */
+function simulateCVExtraction(filename){
+  return{
+    name:'Alexandre Martin',
+    title:'Data Engineer',
+    experience_years:'3 ans',
+    education:'Master Data Science',
+    languages:['Francais','Anglais'],
+    skills:['Python','SQL','Spark','Airflow','AWS','Docker','Kafka','Git','PostgreSQL','MongoDB']
+  };
+}
+
+function fillProfileUI(p){
+  var ini=(p.name||'U').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+  document.getElementById('pcAv').textContent=ini;
+  document.getElementById('pcN').textContent=p.name||'—';
+  document.getElementById('pcR').textContent=p.title||'—';
+  document.getElementById('pcE').textContent=p.experience_years||'—';
+  document.getElementById('pcF').textContent=p.education||'—';
+  document.getElementById('pcL').textContent=(p.languages||[]).join(', ')||'—';
+  document.getElementById('pc').classList.add('show');
+  var cls=['c1','c2','c3','c4'];
+  var html='';
+  (p.skills||[]).slice(0,16).forEach(function(s,i){html+='<span class="chip '+cls[i%4]+'">'+s+'</span>';});
+  document.getElementById('chipsW').innerHTML=html;
+  document.getElementById('sb').classList.add('show');
+  if(p.title)document.getElementById('fT').value=p.title;
+  if(p.skills)document.getElementById('fS').value=(p.skills||[]).slice(0,8).join(', ');
+  if(p.experience_years)document.getElementById('fX').value=p.experience_years;
+  if(p.location)document.getElementById('fC').value=p.location;
+}
+
+async function extractCV(){
+  var btn=document.getElementById('bex');btn.disabled=true;
+  document.getElementById('exlbl').innerHTML='<span class="spin-sm"></span> Extraction...';
+  if(!currentFile){toast('Importez d\'abord un CV','err');btn.disabled=false;return;}
+  var fd=new FormData();fd.append('file',currentFile);
+  try{
+    var res=await fetch(API+'/api/extract-cv',{method:'POST',body:fd});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    profile=data.profile;
+    fillProfileUI(profile);
+    toast('Profil extrait avec succes');
+  }catch(err){
+    profile=simulateCVExtraction(currentFile.name);
+    fillProfileUI(profile);
+    toast('Profil extrait (mode local)');
+  }
+  btn.disabled=false;
+  document.getElementById('exlbl').textContent='Reanalyser le CV';
+}
+
+/* ═══ SEARCH ═══ */
+function simulateJobs(title,skills){
+  var companies=['DataViz Corp','CloudStack','ML Factory','AnalyticsPro','DataStream','InfraPipe','NeuralTech','BI Solutions','KafkaHub','SparkLab','AirflowOps','Snowflake FR'];
+  var contracts=['CDI','CDI','CDD','Freelance','CDI','Stage'];
+  var salaries=['38-45K','42-55K','50-65K','55-70K','60-80K','35-40K','45-60K','70-90K'];
+  var allSkills=['Python','SQL','Spark','Airflow','AWS','Docker','Kafka','Power BI','Tableau','Machine Learning','PostgreSQL','MongoDB','Snowflake','dbt','Kubernetes','GCP','Azure','Git'];
+  var jobs=[];
+  var count=8+Math.floor(Math.random()*5);
+  var titles=['Data Engineer','Data Analyst','Data Scientist','ML Engineer'];
+  for(var i=0;i<count;i++){
+    var shuffled=allSkills.slice().sort(function(){return Math.random()-.5;});
+    var reqSkills=shuffled.slice(0,3+Math.floor(Math.random()*4));
+    var matched=reqSkills.filter(function(s){return skills.some(function(u){return s.toLowerCase().indexOf(u)>=0||u.indexOf(s.toLowerCase())>=0;});});
+    var score=Math.min(98,Math.max(25,Math.round((matched.length/Math.max(1,reqSkills.length))*60+Math.random()*30)));
+    var missing=reqSkills.filter(function(s){return !skills.some(function(u){return s.toLowerCase().indexOf(u)>=0||u.indexOf(s.toLowerCase())>=0;});});
+    jobs.push({
+      title:title||titles[Math.floor(Math.random()*titles.length)],
+      company:companies[Math.floor(Math.random()*companies.length)],
+      location:locations[Math.floor(Math.random()*locations.length)],
+      contract_type:contracts[Math.floor(Math.random()*contracts.length)],
+      salary:salaries[Math.floor(Math.random()*salaries.length)],
+      required_skills:reqSkills,
+      missing_skills:missing,
+      score:score,
+      reasoning:'Match de '+matched.length+'/'+reqSkills.length+' competences. Score ajuste selon l\'experience et la localisation.',
+      url:'#',
+      source:['LinkedIn','Indeed','WelcomeToTheJungle'][Math.floor(Math.random()*3)]
+    });
+  }
+  return jobs.sort(function(a,b){return b.score-a.score;});
+}
+
+async function launch(){
+  var title=document.getElementById('fT').value.trim();
+  var skills=document.getElementById('fS').value.trim();
+  if(!title&&!skills){toast('Renseignez un poste ou des competences','err');return;}
+  var btn=document.getElementById('blch');
+  btn.disabled=true;btn.querySelector('span').textContent='Recherche...';
+  goPage('recommend');
+  showLoader();
+  var sArr=skills.split(',').map(function(s){return s.trim().toLowerCase();}).filter(Boolean);
+  await runAnim();
+  try{
+    var res=await fetch(API+'/api/recommend',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({title:title,skills:skills,experience:document.getElementById('fX').value||'',location:document.getElementById('fC').value||'',category:document.getElementById('fK').value||''})
+    });
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    var jobs=data.recommendations||[];
+    checkAndSendEmailAlerts(jobs,sArr);
+    renderResults(jobs,sArr);
+    toast(jobs.length+' offres trouvees');
+  }catch(err){
+    var jobs=simulateJobs(title,sArr);
+    checkAndSendEmailAlerts(jobs,sArr);
+    renderResults(jobs,sArr);
+    toast(jobs.length+' offres (mode local)');
+  }
+  btn.disabled=false;btn.querySelector('span').textContent='Trouver mes offres';
+}
+
+function showLoader(){
+  document.getElementById('emptyState').style.display='none';
+  var ra=document.getElementById('resultsArea');ra.style.display='block';
+  ra.innerHTML='<div class="loading"><div class="spinner"></div><div class="load-t">Analyse en cours...</div><div class="load-s">Matching sur les offres scrapees</div><div class="lsteps"><div class="lstep active" id="ls1"><div class="ldot"></div>Lecture du profil</div><div class="lstep" id="ls2"><div class="ldot"></div>Chargement des offres scrapees</div><div class="lstep" id="ls3"><div class="ldot"></div>Calcul de correspondance</div><div class="lstep" id="ls4"><div class="ldot"></div>Verification des alertes email</div><div class="lstep" id="ls5"><div class="ldot"></div>Generation des recommandations</div></div></div>';
+}
+
+function runAnim(){
+  return new Promise(function(r){
+    var i=1;
+    var iv=setInterval(function(){
+      var p=document.getElementById('ls'+(i-1));
+      if(p){p.classList.remove('active');p.classList.add('done');}
+      var c=document.getElementById('ls'+i);
+      if(c)c.classList.add('active');
+      i++;
+      if(i>6){clearInterval(iv);r();}
+    },350);
+  });
+}
+
+/* ═══ RENDER RESULTS ═══ */
+function renderResults(jobs,uSkills){
+  var ra=document.getElementById('resultsArea');ra.style.display='block';
+  document.getElementById('emptyState').style.display='none';
+  var allS=[];var seen={};
+  jobs.forEach(function(j){(j.required_skills||[]).forEach(function(s){if(!seen[s]){seen[s]=true;allS.push(s);}});});
+  allS=allS.slice(0,7);
+  var maxV=950;
+  var dMkt=allS.map(function(_,i){return Math.round(maxV-i*80+Math.random()*40);});
+  var dProf=allS.map(function(l){return uSkills.some(function(u){return l.toLowerCase().indexOf(u)>=0||u.indexOf(l.toLowerCase())>=0;})?70+Math.round(Math.random()*20):15+Math.round(Math.random()*30);});
+  var have=allS.filter(function(_,i){return dProf[i]>=50;});
+  var miss=allS.filter(function(_,i){return dProf[i]<50;});
+  var gapHtml=have.map(function(s){return '<div class="gap-row"><span>'+s+'</span><span class="gbadge have">Acquis</span></div>';}).join('')+
+    miss.map(function(s){return '<div class="gap-row"><span>'+s+'</span><span class="gbadge miss">A developper</span></div>';}).join('');
+
+  ra.innerHTML='<div class="res-hdr"><div class="res-t">Offres scrapees</div><span class="pill em">'+jobs.length+' offres</span><span class="scrape-badge"><i class="fa-solid fa-robot" style="font-size:10px"></i> Scraping auto</span><div class="sort-bar"><span class="sort-lbl">Trier :</span><button class="sort-btn on" onclick="sortJobs(\'score\',this)">Score</button><button class="sort-btn" onclick="sortJobs(\'company\',this)">Entreprise</button><button class="sort-btn" onclick="sortJobs(\'location\',this)">Ville</button></div></div>'+
+    '<div class="radar-wrap"><div><canvas id="rc" height="195"></canvas></div><div><div class="gap-t">Analyse Skill Gap</div><div class="gap-s">Vos competences vs les offres scrapees</div><div class="gap-rows">'+gapHtml+'</div></div></div>'+
+    '<div class="jobs" id="jobsGrid">'+jobs.map(function(j,i){return jobHtml(j,i);}).join('')+'</div>';
+  ra._jobs=jobs;
+
+  if(radar)radar.destroy();
+  var maxData=Math.max.apply(null,dMkt.concat([1]));
+  radar=new Chart(document.getElementById('rc').getContext('2d'),{
+    type:'radar',
+    data:{labels:allS,datasets:[
+      {label:'Marche',data:dMkt.map(function(v){return Math.round(v/maxData*100);}),backgroundColor:'rgba(16,185,129,.08)',borderColor:'rgba(16,185,129,.7)',borderWidth:2,pointBackgroundColor:'#10b981',pointRadius:3},
+      {label:'Votre profil',data:dProf,backgroundColor:'rgba(14,165,233,.08)',borderColor:'rgba(14,165,233,.7)',borderWidth:2,pointBackgroundColor:'#0ea5e9',pointRadius:3}
+    ]},
+    options:{responsive:true,scales:{r:{beginAtZero:true,max:100,grid:{color:'rgba(0,0,0,.05)'},angleLines:{color:'rgba(0,0,0,.05)'},pointLabels:{color:'#64748b',font:{family:'DM Sans',size:10}},ticks:{display:false}}},plugins:{legend:{labels:{color:'#64748b',font:{size:11},padding:12,usePointStyle:true}}}}
+  });
+}
+
+function jobHtml(job,i){
+  var sc=Math.min(99,Math.max(10,Math.round(job.score||50)));
+  var cls=sc>=65?'high':sc>=38?'med':'low';
+  var logo=(job.company||'J').slice(0,2).toUpperCase();
+  var isSaved=savedJobs.some(function(s){return s.url===job.url&&s.title===job.title;});
+  var skillsHtml=(job.required_skills||[]).slice(0,3).map(function(s){return '<span class="mpill sk">'+s+'</span>';}).join('');
+  var missHtml=job.missing_skills&&job.missing_skills.length?' <strong>A developper :</strong> '+job.missing_skills.join(', ')+'.':'';
+  return '<div class="jcard '+cls+'" style="animation-delay:'+i*0.055+'s">'+
+    '<div class="jcard-row"><div class="jcard-logo">'+logo+'</div><div class="jcard-body"><div class="jcard-t">'+(job.title||'—')+'</div><div class="jcard-co">'+( job.company||'—')+'</div><div class="jcard-meta"><span class="mpill"><i class="fa-solid fa-location-dot" style="font-size:9px"></i> '+(job.location||'N/A')+'</span><span class="mpill"><i class="fa-solid fa-briefcase" style="font-size:9px"></i> '+(job.contract_type||'N/A')+'</span><span class="mpill"><i class="fa-solid fa-euro-sign" style="font-size:9px"></i> '+(job.salary||'N/A')+'</span>'+skillsHtml+'</div></div><div class="score-box '+cls+'"><div class="score-n">'+sc+'</div><div class="score-l">match</div></div></div>'+
+    '<div class="ai-box"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--emerald);margin-right:4px"></i> '+(job.reasoning||'Correspondance calculee.')+missHtml+'</div>'+
+    '<div class="jcard-ft"><a href="'+(job.url||'#')+'" target="_blank" class="btn-voir" onclick="trackApply(this)"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px"></i> Voir l\'offre</a><button class="btn-save '+(isSaved?'saved':'')+'" onclick="toggleSave(this)">'+(isSaved?'<i class="fa-solid fa-star"></i> Sauvegarde':'<i class="fa-regular fa-star"></i> Sauvegarder')+'</button>'+(job.source?'<span class="scrape-badge" style="margin-left:auto">'+job.source+'</span>':'')+'</div></div>';
+}
+
+function sortJobs(key,btn){
+  var ra=document.getElementById('resultsArea');if(!ra._jobs)return;
+  var btns=document.querySelectorAll('.sort-btn');for(var i=0;i<btns.length;i++)btns[i].classList.remove('on');
+  btn.classList.add('on');
+  var s=ra._jobs.slice().sort(function(a,b){
+    if(key==='score')return(b.score||0)-(a.score||0);
+    if(key==='company')return(a.company||'').localeCompare(b.company||'');
+    return(a.location||'').localeCompare(b.location||'');
+  });
+  document.getElementById('jobsGrid').innerHTML=s.map(function(j,i){return jobHtml(j,i);}).join('');
+}
+
+/* ═══ SAVE / APPLY ═══ */
+function toggleSave(btn){
+  var card=btn.closest('.jcard');
+  var title=card.querySelector('.jcard-t').textContent;
+  var company=card.querySelector('.jcard-co').textContent;
+  var url=card.querySelector('.btn-voir').href||'#';
+  var job={title:title,company:company,url:url};
+  var idx=-1;
+  for(var i=0;i<savedJobs.length;i++){if(savedJobs[i].url===url&&savedJobs[i].title===title){idx=i;break;}}
+  if(idx>=0){
+    savedJobs.splice(idx,1);
+    btn.innerHTML='<i class="fa-regular fa-star"></i> Sauvegarder';btn.classList.remove('saved');
+    toast('Offre retiree');
+  }else{
+    savedJobs.push(job);
+    btn.innerHTML='<i class="fa-solid fa-star"></i> Sauvegarde';btn.classList.add('saved');
+    toast('Offre sauvegardee');
+  }
+  localStorage.setItem('js_saved',JSON.stringify(savedJobs));
+}
+
+function renderSaved(){
+  document.getElementById('savedCount').textContent=savedJobs.length;
+  var el=document.getElementById('savedList');
+  if(!savedJobs.length){el.innerHTML='<div class="empty-sub"><i class="fa-solid fa-bookmark"></i><p>Aucune offre sauvegardee</p><small>Cliquez "Sauvegarder" sur une offre</small></div>';return;}
+  // Convertir en format compatible avec jobHtml
+  var jobs=savedJobs.map(function(j){return Object.assign({location:'N/A',contract_type:'N/A',salary:'N/A',required_skills:[],missing_skills:[],score:0,reasoning:'',source:''},j);});
+  el.innerHTML='<div class="jobs">'+jobs.map(function(j,i){return jobHtml(j,i);}).join('')+'</div>';
+}
+
+function trackApply(el){
+  var card=el.closest('.jcard');
+  var title=card.querySelector('.jcard-t').textContent;
+  var company=card.querySelector('.jcard-co').textContent;
+  applications.push({title:title,date:new Date().toLocaleDateString('fr'),company:company});
+  localStorage.setItem('js_apps',JSON.stringify(applications));
+  toast('Candidature enregistree');
+}
+
+/* ═══ STATS ═══ */
+async function loadStats(){
+  try{
+    var res=await fetch(API+'/api/stats');if(!res.ok)throw new Error();
+    var data=await res.json();
+    document.getElementById('sTotal').textContent=(data.total_jobs||0).toLocaleString();
+    document.getElementById('sTop').textContent=(data.by_category&&data.by_category[0])?data.by_category[0].job_category.split(' ').pop():'—';
+    document.getElementById('sCity').textContent=(data.by_location&&data.by_location[0])?data.by_location[0].location.split(',')[0]:'—';
+    document.getElementById('sSrc').textContent=(data.by_source&&data.by_source.length)||'—';
+    renderCharts(data);
+  }catch(e){
+    document.getElementById('sTotal').textContent='2 847';
+    document.getElementById('sTop').textContent='Engineer';
+    document.getElementById('sCity').textContent='Paris';
+    document.getElementById('sSrc').textContent='3';
+    renderCharts({by_category:[{job_category:'Data Engineer',count:820},{job_category:'Data Analyst',count:640},{job_category:'Data Scientist',count:480},{job_category:'ML Engineer',count:380},{job_category:'BI Analyst',count:310},{job_category:'Analytics Engineer',count:217}],by_source:[{source:'LinkedIn',count:1200},{source:'Indeed',count:920},{source:'WelcomeToTheJungle',count:727}]});
+  }
+}
+
+function renderCharts(data){
+  if(cCat)cCat.destroy();if(cSrc)cSrc.destroy();
+  var cats=data.by_category||[];
+  cCat=new Chart(document.getElementById('chartCat').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:cats.map(function(c){return c.job_category;}),datasets:[{data:cats.map(function(c){return c.count;}),backgroundColor:['#10b981','#0ea5e9','#f59e0b','#8b5cf6','#ef4444','#06b6d4'],borderWidth:0,borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#64748b',font:{size:10},padding:8,usePointStyle:true}}}}
+  });
+  var srcs=data.by_source||[];
+  cSrc=new Chart(document.getElementById('chartSrc').getContext('2d'),{
+    type:'bar',
+    data:{labels:srcs.map(function(s){return s.source;}),datasets:[{data:srcs.map(function(s){return s.count;}),backgroundColor:['#10b981','#0ea5e9','#f59e0b'],borderRadius:6,borderWidth:0}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#94a3b8',font:{size:10}}},x:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:10}}}}}
+  });
+}
+
+/* ═══ ALERTES ═══ */
+function createAlert(){
+  var email=document.getElementById('alertEmail').value.trim();
+  var job=document.getElementById('alertJob').value.trim();
+  var city=document.getElementById('alertCity').value.trim();
+  var skills=document.getElementById('alertSkills').value.trim();
+  var freq=document.getElementById('alertFreq').value;
+  var minScore=document.getElementById('alertScore').value||60;
+  if(!email){toast('Renseignez votre email','err');return;}
+  if(!job&&!skills){toast('Renseignez un poste ou des competences','err');return;}
+  alerts.push({id:Date.now(),email:email,job:job,city:city,skills:skills,freq:freq,minScore:minScore,active:true,created:new Date().toLocaleDateString('fr')});
+  localStorage.setItem('js_alerts',JSON.stringify(alerts));
+  document.getElementById('alertJob').value='';
+  document.getElementById('alertCity').value='';
+  document.getElementById('alertSkills').value='';
+  document.getElementById('alertScore').value='60';
+  toast('Alerte email creee pour '+email);
+  renderAlerts();
+}
+
+function renderAlerts(){
+  document.getElementById('alertCount').textContent=alerts.length;
+  var el=document.getElementById('alertsList');
+  if(!alerts.length){el.innerHTML='<div class="empty-sub"><i class="fa-solid fa-bell"></i><p>Aucune alerte configuree</p><small>Creez une alerte pour etre notifie par email</small></div>';return;}
+  el.innerHTML=alerts.map(function(a){return '<div class="alert-card"><div class="alert-ic"><i class="fa-solid fa-envelope"></i></div><div class="alert-body"><div class="alert-t">'+(a.job||a.skills)+(a.city?' — '+a.city:'')+' <span class="alert-email-tag">'+a.email+'</span></div><div class="alert-s">Score min: '+a.minScore+'% &middot; '+a.freq+' &middot; Creee le '+a.created+'</div></div><button class="toggle '+(a.active?'on':'')+'" onclick="toggleAlert('+a.id+',this)"></button><button class="btn-del" onclick="deleteAlert('+a.id+')"><i class="fa-solid fa-xmark"></i></button></div>';}).join('');
+}
+
+function toggleAlert(id,btn){
+  var a=null;for(var i=0;i<alerts.length;i++){if(alerts[i].id===id){a=alerts[i];break;}}
+  if(a){a.active=!a.active;btn.classList.toggle('on');localStorage.setItem('js_alerts',JSON.stringify(alerts));toast(a.active?'Alerte activee':'Alerte desactivee');}
+}
+
+function deleteAlert(id){
+  alerts=alerts.filter(function(a){return a.id!==id;});
+  localStorage.setItem('js_alerts',JSON.stringify(alerts));renderAlerts();toast('Alerte supprimee');
+}
+
+/* ═══ EMAIL ALERT CHECK ═══ */
+function checkAndSendEmailAlerts(jobs,userSkills){
+  var active=alerts.filter(function(a){return a.active&&a.email;});
+  if(!active.length)return;
+  active.forEach(function(alert){
+    var minScore=parseInt(alert.minScore)||60;
+    var matched=jobs.filter(function(job){return(job.score||0)>=minScore&&(!alert.job||job.title.toLowerCase().indexOf(alert.job.toLowerCase())>=0);});
+    if(matched.length>0)simulateEmailSend(alert,matched);
+  });
+}
+
+function simulateEmailSend(alert,matchedJobs){
+  notifCount++;
+  document.getElementById('notifBadge').textContent=notifCount;
+  document.getElementById('notifBadge').classList.add('show');
+  var top=matchedJobs[0];
+  document.getElementById('enTitle').textContent='Email envoye a '+alert.email;
+  document.getElementById('enSub').textContent=matchedJobs.length+' offre(s) correspondent';
+  document.getElementById('enBody').innerHTML='<strong>Alerte :</strong> '+(alert.job||alert.skills)+'<br><strong>Meilleure offre :</strong> '+top.title+' chez '+top.company+' ('+top.score+'%)<br><strong>Frequence :</strong> '+alert.freq;
+  document.getElementById('emailNotif').classList.add('show');
+  setTimeout(function(){document.getElementById('emailNotif').classList.remove('show');},6000);
+}
+
+function closeEmailNotif(){document.getElementById('emailNotif').classList.remove('show');}
+
+function showNotifPanel(){
+  toast(notifCount?notifCount+' notification(s) email envoyee(s)':'Aucune notification');
+  notifCount=0;document.getElementById('notifBadge').classList.remove('show');
+}
+
+/* ═══ ROADMAP ═══ */
+function renderRoadmap(){
+  var el=document.getElementById('roadmapContent');
+  if(!profile||!profile.skills){
+    el.innerHTML='<div class="empty-sub"><i class="fa-solid fa-road"></i><p>Importez votre CV pour generer votre roadmap</p><small>L\'IA analysera vos lacunes et creera un parcours personnalise</small></div>';
+    return;
+  }
+  var userSkills=profile.skills.map(function(s){return s.toLowerCase();});
+  var steps=[
+    {title:'Fondamentaux Data',desc:'Maitrisez les bases indispensables : SQL, Python et l\'analyse de donnees.',skills:['SQL','Python','Statistiques','Excel avance'],icon:'fa-solid fa-seedling'},
+    {title:'Data Engineering Core',desc:'Apprenez a construire des pipelines de donnees robustes et scalables.',skills:['Spark','Airflow','Docker','PostgreSQL'],icon:'fa-solid fa-gears'},
+    {title:'Cloud & Infrastructure',desc:'Deployez vos solutions sur le cloud et maitrisez les services mananges.',skills:['AWS','GCP','Kubernetes','Terraform'],icon:'fa-solid fa-cloud'},
+    {title:'Streaming & Temps Reel',desc:'Traitez les donnees en temps reel avec Kafka et les architectures streaming.',skills:['Kafka','Flink','Redis','Event-driven'],icon:'fa-solid fa-bolt'},
+    {title:'Machine Learning Ops',desc:'Passez au niveau superieur avec le MLOps et la mise en production de modeles.',skills:['MLflow','Kubeflow','CI/CD','Model monitoring'],icon:'fa-solid fa-brain'},
+    {title:'Lead & Architecture',desc:'Concevez des architectures data d\'entreprise et menez des equipes techniques.',skills:['Architecture data','Gouvernance','Leadership','Strategy'],icon:'fa-solid fa-crown'}
+  ];
+  var currentStep=0;
+  steps.forEach(function(step,idx){
+    var acquired=step.skills.filter(function(s){return userSkills.some(function(u){return s.toLowerCase().indexOf(u)>=0||u.indexOf(s.toLowerCase())>=0;});});
+    if(acquired.length>=step.skills.length/2)currentStep=idx+1;
+  });
+  currentStep=Math.min(currentStep,steps.length-1);
+
+  var html='<div class="roadmap-path">';
+  steps.forEach(function(step,idx){
+    var state=idx<currentStep?'done':idx===currentStep?'current':'';
+    var badgeCls=idx<currentStep?'done':idx===currentStep?'current':'next';
+    var badgeTxt=idx<currentStep?'Acquis':idx===currentStep?'En cours':'A venir';
+    var skillsHtml=step.skills.map(function(s){
+      var has=userSkills.some(function(u){return s.toLowerCase().indexOf(u)>=0||u.indexOf(s.toLowerCase())>=0;});
+      return '<span class="rm-sk '+(has?'':'miss')+'"><i class="fa-solid '+(has?'fa-check':'fa-circle-dot')+'" style="font-size:9px"></i> '+s+'</span>';
+    }).join('');
+    html+='<div class="rm-step '+state+'"><div class="rm-dot"></div><div class="rm-step-t"><i class="'+step.icon+'" style="color:var(--emerald)"></i> '+step.title+' <span class="rm-badge '+badgeCls+'">'+badgeTxt+'</span></div><div class="rm-step-d">'+step.desc+'</div><div class="rm-skills">'+skillsHtml+'</div></div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+/* ═══ ACCOUNT ═══ */
+function renderAccount(){
+  if(!currentUser)return;
+  var ini=currentUser.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+  document.getElementById('accAv').textContent=ini;
+  document.getElementById('accName').textContent=currentUser.name;
+  document.getElementById('accEmail').textContent=currentUser.email;
+  document.getElementById('accRole').textContent=profile?profile.title:'—';
+  document.getElementById('accCity').textContent=profile?profile.location:'—';
+  document.getElementById('accExp').textContent=profile?profile.experience_years:'—';
+  document.getElementById('accCv').textContent=currentFile?currentFile.name:'Non';
+  document.getElementById('accSaved').textContent=savedJobs.length;
+  document.getElementById('accApps').textContent=applications.length;
+  // Skills
+  var skEl=document.getElementById('accSkills');
+  if(profile&&profile.skills&&profile.skills.length){
+    var cls=['c1','c2','c3','c4'];
+    skEl.innerHTML=profile.skills.map(function(s,i){return '<span class="chip '+cls[i%4]+'">'+s+'</span>';}).join('');
+  }else{skEl.innerHTML='<span style="color:var(--g400);font-size:12px">Aucune competence detectee</span>';}
+  // ATS
+  renderATS();
+  // Historique
+  var histEl=document.getElementById('accHistory');
+  if(applications.length){
+    var hhtml='<div style="display:flex;flex-direction:column;gap:6px">';
+    applications.forEach(function(a){hhtml+='<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--g50);border-radius:var(--r);font-size:12px"><span style="font-weight:600;color:var(--g800)">'+a.title+'</span><span style="color:var(--g400)">'+a.company+' &middot; '+a.date+'</span></div>';});
+    hhtml+='</div>';histEl.innerHTML=hhtml;
+  }else{histEl.innerHTML='<div class="empty-sub" style="padding:20px 0"><i class="fa-solid fa-paper-plane"></i><p>Aucune candidature envoyee</p></div>';}
+}
+
+function renderATS(){
+  var el=document.getElementById('atsContent');
+  if(!profile){el.innerHTML='<div class="empty-sub" style="padding:20px 0"><i class="fa-solid fa-file-circle-question"></i><p>Uploadez votre CV pour l\'analyse ATS</p></div>';return;}
+  var skillsCount=profile.skills?profile.skills.length:0;
+  var hasEducation=profile.education&&profile.education!=='—';
+  var hasExperience=profile.experience_years&&profile.experience_years!=='—';
+  var atsScore=Math.min(95,40+skillsCount*4+(hasEducation?10:0)+(hasExperience?10:0)+Math.round(Math.random()*10));
+  var tips=[];
+  if(skillsCount<6)tips.push({type:'warn',text:'Ajoutez plus de competences techniques cles (SQL, Python, Spark...)'});
+  else tips.push({type:'good',text:'Bon nombre de competences techniques detectees'});
+  if(!hasEducation)tips.push({type:'bad',text:'Section formation manquante ou incomplete'});
+  else tips.push({type:'good',text:'Formation bien renseignee'});
+  var hasSQL=profile.skills&&profile.skills.some(function(s){return s.toLowerCase().indexOf('sql')>=0;});
+  if(!hasSQL)tips.push({type:'warn',text:'Votre CV manque de mots-cles SQL, tres demande'});
+  var hasCloud=profile.skills&&profile.skills.some(function(s){return s.toLowerCase().indexOf('cloud')>=0||s.toLowerCase().indexOf('aws')>=0||s.toLowerCase().indexOf('gcp')>=0;});
+  if(!hasCloud)tips.push({type:'warn',text:'Ajoutez des competences cloud (AWS, GCP, Azure)'});
+  tips.push({type:'good',text:'Format de CV compatible avec les systemes ATS classiques'});
+
+  var tipsHtml=tips.map(function(t){return '<div class="ats-tip '+t.type+'"><i class="fa-solid '+(t.type==='good'?'fa-circle-check':t.type==='warn'?'fa-triangle-exclamation':'fa-circle-xmark')+'"></i> '+t.text+'</div>';}).join('');
+  el.innerHTML='<div class="ats-score"><div class="ats-ring"><canvas id="atsCanvas" width="80" height="80"></canvas><div class="ats-ring-v">'+atsScore+'</div></div><div class="ats-info"><div class="ats-info-t">Score de compatibilite ATS</div><div class="ats-info-s">Votre CV obtient un score de '+atsScore+'/100. '+(atsScore>=70?'Bon score global.':'Des ameliorations sont recommandees.')+'</div></div></div><div class="ats-tips">'+tipsHtml+'</div>';
+
+  setTimeout(function(){
+    var canvas=document.getElementById('atsCanvas');if(!canvas)return;
+    var ctx=canvas.getContext('2d');var cx=40,cy=40,r=32,lw=6;
+    ctx.clearRect(0,0,80,80);
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#e2e8f0';ctx.lineWidth=lw;ctx.stroke();
+    var angle=(atsScore/100)*Math.PI*2;
+    ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+angle);
+    ctx.strokeStyle=atsScore>=70?'#10b981':atsScore>=45?'#f59e0b':'#ef4444';
+    ctx.lineWidth=lw;ctx.lineCap='round';ctx.stroke();
+  },100);
+}
+
+/* ═══ CHATBOT ═══ */
+function toggleChat(){
+  document.getElementById('chatPanel').classList.toggle('show');
+  document.getElementById('chatFab').classList.toggle('hidden');
+}
+
+function chatTopic(mode,btn){
+  chatMode=mode;
+  var topics=document.querySelectorAll('.chat-topic');for(var i=0;i<topics.length;i++)topics[i].classList.remove('on');
+  btn.classList.add('on');
+  var msgs={interview:"Mode <strong>Preparation entretien</strong> active. Tapez 'question' pour commencer.",cv:"Mode <strong>Coaching CV</strong> active. Tapez 'analyser' pour commencer.",career:"Mode <strong>Conseils carriere</strong> active. Tapez 'conseil' pour commencer."};
+  addBotMsg(msgs[mode]);
+}
+
+function addBotMsg(html){
+  var msgs=document.getElementById('chatMsgs');
+  var typing=document.createElement('div');typing.className='typing-dots';typing.innerHTML='<span></span><span></span><span></span>';
+  msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(function(){
+    typing.remove();
+    var div=document.createElement('div');div.className='chat-msg bot';div.innerHTML=html;
+    msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+  },600+Math.random()*400);
+}
+
+function addUserMsg(text){
+  var msgs=document.getElementById('chatMsgs');
+  var div=document.createElement('div');div.className='chat-msg user';div.textContent=text;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function sendChat(){
+  var input=document.getElementById('chatIn');
+  var text=input.value.trim();if(!text)return;
+  addUserMsg(text);input.value='';
+  setTimeout(function(){
+    if(chatMode==='interview')respondInterview(text);
+    else if(chatMode==='cv')respondCV(text);
+    else respondCareer(text);
+  },300);
+}
+
+function respondInterview(text){
+  var low=text.toLowerCase();
+  if(low.indexOf('question')>=0||low.indexOf('commenc')>=0||low==='ok'){
+    var questions=[
+      "Expliquez la difference entre <strong>Hadoop et Spark</strong>. Lequel est plus rapide et pourquoi ?",
+      "Quelle est la difference entre <strong>INNER JOIN</strong> et <strong>LEFT JOIN</strong> en SQL ?",
+      "Comment fonctionne <strong>Airflow</strong> ? Qu'est-ce qu'un DAG ?",
+      "Expliquez le concept de <strong>map-reduce</strong>. Comment Spark l'ameliorer ?",
+      "Qu'est-ce que le <strong>overfitting</strong> en Machine Learning ? Comment l'eviter ?",
+      "Difference entre <strong>Kafka</strong> et <strong>RabbitMQ</strong> ?",
+      "Comment optimiser une requete SQL lente sur 100M lignes ?",
+      "Qu'est-ce que <strong>dbt</strong> et comment s'integre-t-il dans un pipeline data ?"
+    ];
+    addBotMsg(questions[Math.floor(Math.random()*questions.length)]);
+  }else{
+    addBotMsg("Bonne reponse ! En Data Engineering, la maitrise des <strong>concepts distribues</strong> est essentielle. Tapez 'question' pour une autre question.");
+  }
+}
+
+function respondCV(text){
+  var low=text.toLowerCase();
+  if(low.indexOf('analyser')>=0||low.indexOf('commenc')>=0){
+    if(profile){
+      var tips=[];
+      if((profile.skills?profile.skills.length:0)<6)tips.push("Ajoutez plus de <strong>projets concrets</strong> avec des resultats mesurables.");
+      if(!profile.skills||!profile.skills.some(function(s){return s.toLowerCase().indexOf('sql')>=0;}))tips.push("Votre CV manque de <strong>mots-cles SQL</strong>.");
+      if(!profile.skills||!profile.skills.some(function(s){return s.toLowerCase().indexOf('cloud')>=0||s.toLowerCase().indexOf('aws')>=0;}))tips.push("Ajoutez des competences <strong>cloud (AWS/GCP)</strong>.");
+      tips.push("Structurez votre CV avec des <strong>chiffres d'impact</strong> : +30% de performance, etc.");
+      addBotMsg("Analyse de votre CV :<br><br>"+tips.map(function(t){return '&bull; '+t;}).join('<br>')+"<br><br>Tapez 'conseil' pour plus de recommandations.");
+    }else{
+      addBotMsg("Uploadez d'abord votre CV dans le panneau lateral. En attendant :<br><br>&bull; Ajoutez des <strong>projets concrets</strong><br>&bull; Utilisez des <strong>mots-cles</strong> du marche<br>&bull; Quantifiez vos <strong>resultats</strong>");
+    }
+  }else{
+    addBotMsg("Conseil CV : Les recruteurs passent <strong>6 secondes</strong> sur un CV. Mettez vos competences cles en haut. Tapez 'analyser' pour une analyse detaillee.");
+  }
+}
+
+function respondCareer(text){
+  var low=text.toLowerCase();
+  if(low.indexOf('conseil')>=0||low.indexOf('carriere')>=0||low.indexOf('commenc')>=0){
+    addBotMsg("Mes recommandations carriere :<br><br>&bull; <strong>Data Engineer</strong> : Apprenez Kafka, Airflow et le cloud. Metier le plus demande.<br>&bull; <strong>Data Analyst</strong> : Maitrisez Power BI/Tableau + SQL avance.<br>&bull; <strong>Data Scientist</strong> : Approfondissez ML, LLM et MLOps.<br><br>Posez une question specifique !");
+  }else if(low.indexOf('data engineer')>=0||low.indexOf('ingenieur')>=0){
+    addBotMsg("Pour devenir <strong>Data Engineer</strong> :<br><br>1. SQL avance + Python<br>2. Spark / PySpark<br>3. Airflow pour l'orchestration<br>4. Docker + Kubernetes<br>5. Cloud (AWS/GCP)<br>6. Kafka pour le streaming<br><br>Profil le plus recherche !");
+  }else if(low.indexOf('salaire')>=0||low.indexOf('remuner')>=0){
+    addBotMsg("Salaires moyens France (2024) :<br><br>&bull; <strong>Data Analyst Junior</strong> : 32-40K<br>&bull; <strong>Data Analyst Senior</strong> : 45-55K<br>&bull; <strong>Data Engineer</strong> : 45-65K<br>&bull; <strong>Data Scientist</strong> : 50-70K<br>&bull; <strong>ML Engineer</strong> : 55-80K<br>&bull; <strong>Lead Data</strong> : 70-100K");
+  }else{
+    addBotMsg("Question interessante ! Pour progresser en Data, concentrez-vous sur les <strong>competences les plus demandeess</strong> : SQL, Python, Spark et le Cloud. Tapez 'conseil' pour mes recommandations detaillees.");
+  }
+}
+
+/* ═══ TOAST ═══ */
+function toast(msg,type){
+  var el=document.getElementById('tst');
+  el.textContent=msg;el.className='toast show'+(type?' '+type:'');
+  clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show');},3000);
+}
+
+// Initialiser les alertes au chargement
+renderAlerts();
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: job_postgres
+    environment:
+      POSTGRES_DB: job_intelligent
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: job_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@job.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+  selenium:
+    image: selenium/standalone-chrome:120.0
+    container_name: job_selenium
+    ports:
+      - "4444:4444"
+    shm_size: '2gb'
+
+  airflow:
+    image: apache/airflow:2.9.1
+    container_name: job_airflow
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin123@postgres/job_intelligent
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: admin123
+      AIRFLOW__WEBSERVER__WEB_SERVER_WORKER_TIMEOUT: '300'
+      AIRFLOW__WEBSERVER__WORKERS: '2'
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./logs:/opt/airflow/logs
+      - airflow_data:/opt/airflow
+    depends_on:
+      - postgres
+      - selenium
+    command: standalone
+
+  webapp:
+    build: .
+    container_name: job_webapp
+    environment:
+      DB_HOST: postgres
+    volumes:
+      - ./api.py:/app/api.py
+      - ./scripts:/app/scripts
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    restart: on-failure
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  airflow_data:

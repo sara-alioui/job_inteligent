@@ -1,0 +1,9 @@
+﻿.env
+logs/
+__pycache__/
+*.pyc
+scripts/embeddings.pkl
+scripts/debug_screenshots/
+TEST.html
+TEST_files/
+*.log
